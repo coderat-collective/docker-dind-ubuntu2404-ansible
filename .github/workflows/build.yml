@@ -1,0 +1,27 @@
+---
+name: Build
+
+on:
+  push:
+  schedule:
+    - cron: "0 0 1 * *"  # Runs at 00:00 UTC on the 1st of every month
+
+jobs:
+  build:
+    name: Build and Push
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        run: |
+          docker build -t ghcr.io/coderat-collective/docker-dind-ubuntu2404-ansible:latest .
+          docker push ghcr.io/coderat-collective/docker-dind-ubuntu2404-ansible:latest

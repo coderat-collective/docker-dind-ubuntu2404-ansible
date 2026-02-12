@@ -41,7 +41,7 @@ To use this image in your Molecule test scenarios, configure your `molecule.yml`
 ```yaml
 platforms:
   - name: test-container
-    image: registry.gitlab.com/your-namespace/docker-dind-ubuntu2404-ansible:latest
+    image: ghcr.io/coderat-collective/docker-dind-ubuntu2404-ansible:latest
     privileged: true
     cgroupns_mode: host
     volumes:
@@ -57,7 +57,7 @@ all:
     test_client:
       ansible_host: test_client
       ansible_connection: community.docker.docker
-      container_image: "registry.gitlab.com/your-namespace/docker-dind-ubuntu2404-ansible:latest"
+      container_image: "ghcr.io/coderat-collective/docker-dind-ubuntu2404-ansible:latest"
       container_command: ""
       container_privileged: true
       container_super_privileged: true
@@ -71,7 +71,7 @@ docker run -d \
   --privileged \
   --cgroupns=host \
   -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
-  registry.gitlab.com/your-namespace/docker-dind-ubuntu2404-ansible:latest
+  ghcr.io/coderat-collective/docker-dind-ubuntu2404-ansible:latest
 
 # Wait a few seconds for systemd to start Docker
 sleep 5
@@ -139,45 +139,85 @@ To build with a specific tag:
 docker build -t docker-dind-ubuntu2404-ansible:v1.0.0 .
 ```
 
-## GitLab CI/CD
+## GitHub Actions
 
-This repository includes a `.gitlab-ci.yml` file that automatically builds and pushes the Docker image to the GitLab Container Registry.
+This repository includes a `.github/workflows/build.yml` file that automatically builds and pushes the Docker image to the GitHub Container Registry (ghcr.io).
 
-### Pipeline Stages
+### Pipeline
 
-1. **Build**: Builds the Docker image on every push
-2. **Push**: Pushes images to the registry (main branch and tags only)
+The workflow automatically builds and pushes the Docker image in the following scenarios:
+
+1. **On every push**: Builds and pushes to any branch
+2. **Monthly schedule**: Automatically rebuilds on the 1st of every month at 00:00 UTC
 
 ### Automatic Builds
 
-- **On `main` branch**: Builds and pushes with `latest` and commit SHA tags
-- **On Git tags**: Builds and pushes with the version tag and `latest`
-- **On merge requests**: Builds only (no push)
+- **On every push**: Builds and pushes with `latest` tag (all branches)
+- **Monthly schedule**: Keeps the image updated with the latest base image and security updates
 
 ### Image Tags
 
 Images are tagged as:
 
-- `latest` - Most recent build from main branch or latest tag
-- `<commit-sha>` - Specific commit identifier
-- `<version>` - Git tag version (e.g., `v1.0.0`)
+- `latest` - Most recent build from any branch
 
 ### Registry Location
 
-After pipeline completion, images are available at:
+After the workflow completes, images are available at:
 
 ```
-registry.gitlab.com/your-namespace/docker-dind-ubuntu2404-ansible:latest
+ghcr.io/coderat-collective/docker-dind-ubuntu2404-ansible:latest
 ```
 
-Replace `your-namespace` with your actual GitLab group/user namespace.
+You can view the package on GitHub at: **Packages** → **docker-dind-ubuntu2404-ansible** in the repository sidebar.
+
+### Pulling the Image
+
+```bash
+docker pull ghcr.io/coderat-collective/docker-dind-ubuntu2404-ansible:latest
+```
 
 ## Testing the Image
 
-To verify Docker works inside the container:
+### Using the Published Image
+
+To verify Docker works inside the container using the published image from GitHub Container Registry:
 
 ```bash
+# Pull the latest image
+docker pull ghcr.io/coderat-collective/docker-dind-ubuntu2404-ansible:latest
+
 # Start the container
+docker run -d \
+  --name dind-test \
+  --privileged \
+  --cgroupns=host \
+  -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
+  ghcr.io/coderat-collective/docker-dind-ubuntu2404-ansible:latest
+
+# Wait a few seconds for Docker to initialize
+sleep 5
+
+# Verify Ansible is installed
+docker exec dind-test ansible --version
+
+# Execute docker commands inside the container
+docker exec dind-test docker info
+docker exec dind-test docker run hello-world
+
+# Check Docker service status
+docker exec dind-test systemctl status docker
+
+# Clean up
+docker stop dind-test
+docker rm dind-test
+```
+
+### Using a Locally Built Image
+
+If you built the image locally:
+
+```bash
 docker run -d \
   --name dind-test \
   --privileged \
@@ -185,12 +225,9 @@ docker run -d \
   -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
   docker-dind-ubuntu2404-ansible:local
 
-# Wait a few seconds for Docker to initialize
+# Wait and test as above
 sleep 5
-
-# Execute docker commands inside the container
 docker exec dind-test docker info
-docker exec dind-test docker run hello-world
 
 # Clean up
 docker stop dind-test
@@ -239,7 +276,7 @@ This image builds upon [geerlingguy/docker-ubuntu2404-ansible](https://github.co
 
 ## Maintainer
 
-- Your Name dezim.fdz
+- coderat-collective
 
 ## Related Projects
 
