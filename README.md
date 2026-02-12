@@ -169,14 +169,6 @@ After the workflow completes, images are available at:
 ghcr.io/coderat-collective/docker-dind-ubuntu2404-ansible:latest
 ```
 
-You can view the package on GitHub at: **Packages** → **docker-dind-ubuntu2404-ansible** in the repository sidebar.
-
-### Pulling the Image
-
-```bash
-docker pull ghcr.io/coderat-collective/docker-dind-ubuntu2404-ansible:latest
-```
-
 ## Testing the Image
 
 ### Using the Published Image
@@ -184,10 +176,6 @@ docker pull ghcr.io/coderat-collective/docker-dind-ubuntu2404-ansible:latest
 To verify Docker works inside the container using the published image from GitHub Container Registry:
 
 ```bash
-# Pull the latest image
-docker pull ghcr.io/coderat-collective/docker-dind-ubuntu2404-ansible:latest
-
-# Start the container
 docker run -d \
   --name dind-test \
   --privileged \
@@ -207,27 +195,6 @@ docker exec dind-test docker run hello-world
 
 # Check Docker service status
 docker exec dind-test systemctl status docker
-
-# Clean up
-docker stop dind-test
-docker rm dind-test
-```
-
-### Using a Locally Built Image
-
-If you built the image locally:
-
-```bash
-docker run -d \
-  --name dind-test \
-  --privileged \
-  --cgroupns=host \
-  -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
-  docker-dind-ubuntu2404-ansible:local
-
-# Wait and test as above
-sleep 5
-docker exec dind-test docker info
 
 # Clean up
 docker stop dind-test
