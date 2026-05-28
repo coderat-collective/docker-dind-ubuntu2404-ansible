@@ -9,10 +9,16 @@ LABEL maintainer="coderat-collective" \
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Install prerequisites and setup Docker repository
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+RUN apt update && \
+    apt upgrade && \
+    apt install -y --no-install-recommends \
         ssh \
         ca-certificates \
+        tree \
+        less \
+        vim \
+        nmap \
+        iputils-ping \
         curl && \
     mkdir -p /etc/apt/keyrings && \
     chmod 0755 /etc/apt/keyrings && \
@@ -22,8 +28,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Docker and related packages
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+RUN apt install -y --no-install-recommends \
         docker-ce \
         docker-ce-cli \
         containerd.io \
