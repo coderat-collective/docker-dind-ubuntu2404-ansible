@@ -10,7 +10,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # Install prerequisites and setup Docker repository
 RUN apt update && \
-    apt upgrade && \
+    apt upgrade -y && \
     apt install -y --no-install-recommends \
         ssh \
         ca-certificates \
@@ -28,7 +28,8 @@ RUN apt update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Docker and related packages
-RUN apt install -y --no-install-recommends \
+RUN apt update && \
+    apt install -y --no-install-recommends \
         docker-ce \
         docker-ce-cli \
         containerd.io \
