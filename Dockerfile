@@ -39,10 +39,8 @@ RUN apt update && \
     rm -rf /var/lib/apt/lists/*
 
 # Configure Docker daemon with VFS storage driver
-# Commented because docker can decide via auto detection.
-# Todo: Remove if no problems occour
-#RUN mkdir -p /etc/docker && \
-#    echo '{"storage-driver": "vfs"}' > /etc/docker/daemon.json
+RUN mkdir -p /etc/docker && \
+    echo '{"storage-driver": "vfs"}' > /etc/docker/daemon.json
 
 # Enable Docker and cron services to start automatically with systemd
 RUN systemctl enable docker.service && \
